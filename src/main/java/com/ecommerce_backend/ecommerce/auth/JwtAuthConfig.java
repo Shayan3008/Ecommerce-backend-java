@@ -23,7 +23,7 @@ import jakarta.servlet.http.HttpServletRequest;
 
 @Component
 public class JwtAuthConfig {
-    private static final SecretKey SECRET_KEY =  Keys.secretKeyFor(SignatureAlgorithm.HS256);
+    private static final SecretKey SECRET_KEY =  Keys.hmacShaKeyFor("G3rd6sf5Kx8vQXYfMBU4XRAOZX/2hGrUhnVytpRy0cU=".getBytes());
     private long accessTokenValidity = 60 * 60l * 1000;
 
     private JwtParser jwtParser;

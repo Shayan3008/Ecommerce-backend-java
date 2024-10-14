@@ -8,5 +8,5 @@ public class FilterMappingObject<E> {
     
     private CriteriaQuery<E> criteriaQuery;
 
-    private CriteriaQuery<Long> counCriteriaQuery;
+    private CriteriaQuery<Long> countCriteriaQuery;
 }

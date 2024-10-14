@@ -39,7 +39,7 @@ public class CriteriaFilter<E> {
             EntityManager entityManager,
             List<String> sortingColumns, int size, int page) throws ParseException {
         var filterMappingObject = getFilterMappingObject(entityClass, map, entityManager, sortingColumns);
-        Long count = entityManager.createQuery(filterMappingObject.getCounCriteriaQuery()).getSingleResult();
+        Long count = entityManager.createQuery(filterMappingObject.getCountCriteriaQuery()).getSingleResult();
         ListingResponseObject<E> listingResponseObject = new ListingResponseObject<>();
         listingResponseObject.setTotalResultCount(count);
         if ((long) page * size > count) {
@@ -60,7 +60,7 @@ public class CriteriaFilter<E> {
     public ListingResponseObject<E> applyFilter(Class<E> entityClass, Map<String, String> map,
             EntityManager entityManager) throws ParseException {
         var filterMappingObject = getFilterMappingObject(entityClass, map, entityManager, null);
-        Long count = entityManager.createQuery(filterMappingObject.getCounCriteriaQuery()).getSingleResult();
+        Long count = entityManager.createQuery(filterMappingObject.getCountCriteriaQuery()).getSingleResult();
         ListingResponseObject<E> listingResponseObject = new ListingResponseObject<>();
         listingResponseObject.setTotalResultCount(count);
         listingResponseObject
@@ -79,7 +79,7 @@ public class CriteriaFilter<E> {
 
         FilterMappingObject<E> filterMappingObject = new FilterMappingObject<>();
         filterMappingObject.setCriteriaQuery(criteriaQuery);
-        filterMappingObject.setCounCriteriaQuery(count);
+        filterMappingObject.setCountCriteriaQuery(count);
 
         return filterMappingObject;
     }
@@ -107,6 +107,7 @@ public class CriteriaFilter<E> {
         Root<E> root = (Root<E>) criteriaQuery.from(entityClass);
         var predicate = generatePredicates(map, criteriaQuery, entityClass, criteriaBuilder, entityManager, root);
         criteriaQuery.where(predicate);
+        criteriaQuery.select(criteriaBuilder.count(root));
         return criteriaQuery;
     }
 
