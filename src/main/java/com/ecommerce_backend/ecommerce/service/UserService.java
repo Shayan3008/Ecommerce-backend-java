@@ -2,6 +2,8 @@ package com.ecommerce_backend.ecommerce.service;
 
 import java.util.List;
 
+import com.ecommerce_backend.ecommerce.auth.dto.request.LoginReqDto;
+import com.ecommerce_backend.ecommerce.common.exceptions.NotPresentException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -39,14 +41,11 @@ public class UserService extends BaseService{
     }
 
     public LoginResponseDTO saveUser(UserRequestDTO userRequestDTO)
-            throws InvalidaInputException, AlreadyPresentException {
+            throws InvalidaInputException, AlreadyPresentException, NotPresentException {
         String hashPassword = passwordEncoder.encode(userRequestDTO.getHashedPassword());
         Users users = getMapperFactory().getUserMapper().requestToDomain(userRequestDTO);
         users.setHashedPassword(hashPassword);
-        // String validation = getValidatorFactory().getUserValidator().validateUser(users);
-        // if (validation != null) {
-        //     throw new InvalidInputException(validation);
-        // }
+
         if (getDaoFactory().getUsersDAO().findByEmail(userRequestDTO.getEmail()) != null) {
             throw new AlreadyPresentException("Email is already Present");
         }
@@ -56,16 +55,43 @@ public class UserService extends BaseService{
 
     }
 
-    public LoginResponseDTO generateTokenForUsers(Users users,String hashedPassword) {
+    public LoginResponseDTO generateTokenForUsers(Users users,String hashedPassword) throws NotPresentException {
 
         if(!users.getHashedPassword().startsWith("$2a"))
             users.setHashedPassword(hashedPassword);
 
+        users = getDaoFactory().getUsersDAO().findByEmail(users.getEmail());
+        if(users == null)
+        {
+           throw new NotPresentException("Invalid Username or Password.");
+        }
         String token = getJwtAuthConfig().createToken(users);
         LoginResponseDTO loginResponseDTO = new LoginResponseDTO();
         loginResponseDTO.setEmail(users.getEmail());
-        loginResponseDTO.setUserName(users.getName());
+        loginResponseDTO.setFirstName(users.getName());
+        loginResponseDTO.setLastName(users.getLastName());
         loginResponseDTO.setToken(token);
         return loginResponseDTO;
     }
+
+    public LoginResponseDTO loginUser(LoginReqDto loginReqDto) throws NotPresentException {
+        var users = getDaoFactory().getUsersDAO().findByEmail(loginReqDto.getEmail());
+        if(users == null)
+        {
+            throw new NotPresentException("Incorrect Email.");
+        }
+
+        if(!passwordEncoder.matches(loginReqDto.getPassword(), users.getHashedPassword()))
+        {
+            throw new NotPresentException("Incorrect Password.");
+        }
+
+        LoginResponseDTO loginResponseDTO = new LoginResponseDTO();
+        loginResponseDTO.setToken(getJwtAuthConfig().createToken(users));
+        loginResponseDTO.setEmail(users.getEmail());
+        loginResponseDTO.setFirstName(users.getName());
+        loginResponseDTO.setLastName(users.getLastName());
+        return loginResponseDTO;
+    }
+
 }

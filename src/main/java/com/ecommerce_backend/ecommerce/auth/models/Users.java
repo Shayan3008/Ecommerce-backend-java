@@ -17,8 +17,12 @@ public class Users {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(name = "USER_NAME")
+    @Column(name = "FIRST_NAME")
     private String name;
+
+    @Column(name = "LAST_NAME")
+    private String lastName;
+
     private String email;
 
     @Column(name = "HASHED_PASSWORD")

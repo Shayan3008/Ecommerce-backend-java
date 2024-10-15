@@ -11,7 +11,8 @@ public class UserMapper {
     public Users requestToDomain(UserRequestDTO userRequestDTO){
         Users users = new Users();
         users.setEmail(userRequestDTO.getEmail());
-        users.setName(userRequestDTO.getName());
+        users.setName(userRequestDTO.getFirstName());
+        users.setLastName(userRequestDTO.getLastName());
         users.setHashedPassword(userRequestDTO.getHashedPassword());
         return users;
     }

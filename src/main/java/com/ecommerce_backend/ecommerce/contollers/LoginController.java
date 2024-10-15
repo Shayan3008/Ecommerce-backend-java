@@ -1,5 +1,6 @@
 package com.ecommerce_backend.ecommerce.contollers;
 
+import com.ecommerce_backend.ecommerce.common.exceptions.NotPresentException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,13 +30,9 @@ public class LoginController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<CommonResponse<LoginResponseDTO>> loginUser(@RequestBody LoginReqDto loginReqDto) {
+    public ResponseEntity<CommonResponse<LoginResponseDTO>> loginUser(@RequestBody LoginReqDto loginReqDto) throws NotPresentException {
 
-        Users users = new Users();
-        users.setEmail(loginReqDto.getEmail());
-        users.setHashedPassword(loginReqDto.getPassword());
-        users.setName(loginReqDto.getUserName());
-        LoginResponseDTO loginResponseDTO = userService.generateTokenForUsers(users,"");
+        LoginResponseDTO loginResponseDTO = userService.loginUser(loginReqDto);
         return ResponseEntity.status(200)
                 .body(new CommonResponse<>("User saved", HttpStatus.OK.value(), loginResponseDTO));
 
@@ -43,7 +40,7 @@ public class LoginController {
 
     @PostMapping("/register")
     public ResponseEntity<CommonResponse<LoginResponseDTO>> saveUser(@RequestBody UserRequestDTO userRequestDTO)
-            throws InvalidaInputException, AlreadyPresentException {
+            throws InvalidaInputException, AlreadyPresentException, NotPresentException {
         LoginResponseDTO userResponseDTO = userService.saveUser(userRequestDTO);
         CommonResponse<LoginResponseDTO> commonResponse = new CommonResponse<>("User Registered Successfully",
                 HttpStatus.OK.value(), userResponseDTO);
